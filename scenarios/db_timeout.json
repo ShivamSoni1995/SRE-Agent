@@ -1,0 +1,13 @@
+{
+  "scenario": "db_timeout",
+  "description": "Database connection timeout under load",
+  "expected_root_cause": "database unreachable",
+  "logs": "ERROR database timeout\nERROR retry failed\nERROR connection pool exhausted\nERROR database timeout",
+  "metrics": {
+    "cpu": 92,
+    "memory": 84,
+    "latency": 1200,
+    "error_rate": 15
+  },
+  "events": ["deployment_started"]
+}

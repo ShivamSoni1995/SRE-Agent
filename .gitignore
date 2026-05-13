@@ -1,0 +1,31 @@
+# Secrets — never commit these
+.env
+*.json.key
+*-sa-key.json
+github-actions-sa-key.json
+
+# Local data
+data/incidents.db
+data/logs/*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Docker
+.docker/
+
+# IDEs
+.vscode/
+.idea/
+*.swp

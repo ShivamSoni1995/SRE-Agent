@@ -1,0 +1,13 @@
+{
+  "scenario": "cpu_exhaustion",
+  "description": "CPU maxed out causing slow responses",
+  "expected_root_cause": "resource exhaustion",
+  "logs": "WARN high cpu usage detected\nERROR request timeout\nERROR worker process killed",
+  "metrics": {
+    "cpu": 98,
+    "memory": 70,
+    "latency": 3500,
+    "error_rate": 25
+  },
+  "events": []
+}
