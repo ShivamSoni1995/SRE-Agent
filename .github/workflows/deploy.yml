@@ -40,13 +40,18 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
@@ -55,7 +60,7 @@ jobs:
         run: |
           gcloud builds submit \
             --tag gcr.io/$PROJECT_ID/$API_SERVICE \
-            --gcs-source-staging-dir=gs://${PROJECT_ID}_cloudbuild/source \
+            --gcs-source-staging-dir=gs://open-sre_cloudbuild/source \
             .
 
       - name: Deploy API to Cloud Run
@@ -76,7 +81,6 @@ jobs:
 
       - name: Print API URL
         run: |
-          echo "API deployed to:"
           gcloud run services describe $API_SERVICE \
             --region $REGION \
             --format "value(status.url)"
@@ -88,13 +92,18 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
@@ -103,7 +112,7 @@ jobs:
         run: |
           gcloud builds submit \
             --config cloudbuild-ui.yaml \
-            --gcs-source-staging-dir=gs://${PROJECT_ID}_cloudbuild/source \
+            --gcs-source-staging-dir=gs://open-sre_cloudbuild/source \
             .
 
       - name: Deploy UI to Cloud Run
@@ -119,7 +128,6 @@ jobs:
 
       - name: Print UI URL
         run: |
-          echo "UI deployed to:"
           gcloud run services describe $UI_SERVICE \
             --region $REGION \
             --format "value(status.url)"
