@@ -129,6 +129,25 @@ storage_operations_total = Counter(
 )
 
 
+
+# ── Semantic evaluation ───────────────────────────────────────────────────────
+
+semantic_similarity_score = Histogram(
+    "opensre_semantic_similarity_score",
+    "Distribution of semantic similarity scores from embedding-based evaluation",
+    buckets=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+)
+
+embedding_api_calls_total = Counter(
+    "opensre_embedding_api_calls_total",
+    "Total Gemini embedding API calls",
+    ["outcome"],  # success | error | cache_hit
+)
+
+embedding_cache_size = Gauge(
+    "opensre_embedding_cache_size",
+    "Current number of cached embeddings",
+)
 def get_metrics() -> tuple[bytes, str]:
     """Return current metrics in Prometheus text format."""
     return generate_latest(REGISTRY), CONTENT_TYPE_LATEST

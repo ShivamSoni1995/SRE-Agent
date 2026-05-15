@@ -53,7 +53,7 @@ async def analyze_incident(req: AnalyzeRequest):
         finally:
             m.gemini_api_duration_seconds.observe(time.perf_counter() - gemini_start)
 
-        evaluation = evaluate_rca(rca)
+        evaluation = await evaluate_rca(rca)
         severity = parsed_metrics["severity"]
         confidence = float(rca.get("confidence", 0))
 
@@ -125,6 +125,9 @@ async def analyze_incident(req: AnalyzeRequest):
             confidence=confidence,
             evaluation_score=evaluation["score"],
             matched_keywords=evaluation["matched_keywords"],
+            semantic_score=evaluation.get("semantic_score"),
+            semantic_available=evaluation.get("semantic_available", False),
+            scoring_method=evaluation.get("scoring_method", "keyword+completeness"),
             timestamp=timestamp,
         )
 

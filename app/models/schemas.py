@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import Optional, Dict, List, Any
-from datetime import datetime
 
 
 class AnalyzeRequest(BaseModel):
@@ -19,6 +18,9 @@ class RCAOutput(BaseModel):
 class EvaluationResult(BaseModel):
     score: float
     matched_keywords: List[str]
+    semantic_score: Optional[float] = None
+    semantic_available: bool = False
+    scoring_method: str = "keyword+completeness"
 
 
 class AnalyzeResponse(BaseModel):
@@ -29,6 +31,9 @@ class AnalyzeResponse(BaseModel):
     confidence: float
     evaluation_score: float
     matched_keywords: List[str]
+    semantic_score: Optional[float] = None
+    semantic_available: bool = False
+    scoring_method: str = "keyword+completeness"
     timestamp: str
 
 
