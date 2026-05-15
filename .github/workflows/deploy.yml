@@ -18,7 +18,6 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -56,13 +55,39 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build API container
+      - name: Submit API build (async)
         run: |
-          gcloud builds submit \
+          BUILD_ID=$(gcloud builds submit \
             --tag gcr.io/$PROJECT_ID/$API_SERVICE \
             --gcs-source-staging-dir=gs://open-sre_cloudbuild/source \
-            --suppress-logs \
-            .
+            --async \
+            --format="value(id)" \
+            .)
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_ENV
+          echo "Build submitted: $BUILD_ID"
+          echo "Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=$PROJECT_ID"
+
+      - name: Wait for API build to complete
+        run: |
+          echo "Waiting for build $BUILD_ID to complete..."
+          while true; do
+            STATUS=$(gcloud builds describe $BUILD_ID \
+              --format="value(status)")
+            echo "Status: $STATUS"
+            case $STATUS in
+              SUCCESS)
+                echo "Build succeeded"
+                break
+                ;;
+              FAILURE|CANCELLED|TIMEOUT|INTERNAL_ERROR)
+                echo "Build failed with status: $STATUS"
+                exit 1
+                ;;
+              *)
+                sleep 30
+                ;;
+            esac
+          done
 
       - name: Deploy API to Cloud Run
         run: |
@@ -109,13 +134,39 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build UI container
+      - name: Submit UI build (async)
         run: |
-          gcloud builds submit \
+          BUILD_ID=$(gcloud builds submit \
             --config cloudbuild-ui.yaml \
             --gcs-source-staging-dir=gs://open-sre_cloudbuild/source \
-            --suppress-logs \
-            .
+            --async \
+            --format="value(id)" \
+            .)
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_ENV
+          echo "Build submitted: $BUILD_ID"
+          echo "Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=$PROJECT_ID"
+
+      - name: Wait for UI build to complete
+        run: |
+          echo "Waiting for build $BUILD_ID to complete..."
+          while true; do
+            STATUS=$(gcloud builds describe $BUILD_ID \
+              --format="value(status)")
+            echo "Status: $STATUS"
+            case $STATUS in
+              SUCCESS)
+                echo "Build succeeded"
+                break
+                ;;
+              FAILURE|CANCELLED|TIMEOUT|INTERNAL_ERROR)
+                echo "Build failed with status: $STATUS"
+                exit 1
+                ;;
+              *)
+                sleep 30
+                ;;
+            esac
+          done
 
       - name: Deploy UI to Cloud Run
         run: |
