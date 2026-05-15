@@ -33,7 +33,7 @@ jobs:
       - name: Run test suite
         run: pytest tests/ -v --tb=short
 
-  # ── Job 2: Deploy API to Cloud Run (main branch only) ─────────────────────
+  # ── Job 2: Deploy API to Cloud Run ────────────────────────────────────────
   deploy-api:
     name: Deploy API
     runs-on: ubuntu-latest
@@ -61,6 +61,7 @@ jobs:
           gcloud builds submit \
             --tag gcr.io/$PROJECT_ID/$API_SERVICE \
             --gcs-source-staging-dir=gs://open-sre_cloudbuild/source \
+            --suppress-logs \
             .
 
       - name: Deploy API to Cloud Run
@@ -85,7 +86,7 @@ jobs:
             --region $REGION \
             --format "value(status.url)"
 
-  # ── Job 3: Deploy UI to Cloud Run (main branch only) ──────────────────────
+  # ── Job 3: Deploy UI to Cloud Run ─────────────────────────────────────────
   deploy-ui:
     name: Deploy UI
     runs-on: ubuntu-latest
@@ -113,6 +114,7 @@ jobs:
           gcloud builds submit \
             --config cloudbuild-ui.yaml \
             --gcs-source-staging-dir=gs://open-sre_cloudbuild/source \
+            --suppress-logs \
             .
 
       - name: Deploy UI to Cloud Run
