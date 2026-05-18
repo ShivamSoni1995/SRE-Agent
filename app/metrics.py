@@ -151,3 +151,39 @@ embedding_cache_size = Gauge(
 def get_metrics() -> tuple[bytes, str]:
     """Return current metrics in Prometheus text format."""
     return generate_latest(REGISTRY), CONTENT_TYPE_LATEST
+
+# ── Streaming ingestion pipeline ──────────────────────────────────────────────
+
+ingested_events_total = Counter(
+    "opensre_ingested_events_total",
+    "Total telemetry events ingested",
+    ["source", "severity"],
+)
+
+ingestion_errors_total = Counter(
+    "opensre_ingestion_errors_total",
+    "Total ingestion errors (decode/normalize failures)",
+    ["source", "error_type"],
+)
+
+correlated_incidents_total = Counter(
+    "opensre_correlated_incidents_total",
+    "Total incident candidates detected by correlation engine",
+    ["incident_type", "service"],
+)
+
+incident_deduplicated_total = Counter(
+    "opensre_incident_deduplicated_total",
+    "Total incident candidates suppressed by deduplication",
+)
+
+correlation_window_size = Gauge(
+    "opensre_correlation_window_size",
+    "Current event count in rolling correlation windows",
+    ["service", "severity"],
+)
+
+ai_triggers_total = Counter(
+    "opensre_ai_triggers_total",
+    "Total times AI RCA was triggered by correlation engine",
+)
